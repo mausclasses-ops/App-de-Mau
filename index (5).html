@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clases de Inglés con Mauro</title>
+
+<!-- Ícono y "agregar a pantalla de inicio" -->
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<meta name="theme-color" content="#1B4F91">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Inglés con Mauro">
+
+<!-- Vista previa al compartir el link (WhatsApp, etc.) -->
+<meta property="og:title" content="Clases de Inglés con Mauro">
+<meta property="og:description" content="Ingresá a tu clase y accedé a todo el material de estudio.">
+<meta property="og:image" content="og-image.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</head>
+<body>
+
+<script>
+/* ============================================================
+   ZONA DE CONFIGURACIÓN — completá estos 4 valores
+   ============================================================ */
+const CONFIG = {
+  // Link de tu Google Sheet publicado como CSV (ver guía, paso 2)
+  SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSVqS7ne_qD1d38XMy2_dyJXsLO1i5GdMwrjA_QvfzHrKl7LC_0R866E2FM0z2uUjJGd7CVmWjVrTnz/pub?gid=0&single=true&output=csv",
+
+  // Datos de EmailJS (ver guía, paso 4)
+  EMAILJS_PUBLIC_KEY: "xAVGi97XE63mVzCG8",
+  EMAILJS_SERVICE_ID: "service_sch59jd",
+  EMAILJS_TEMPLATE_ID: "template_jurm6hf",
+
+  // Lo que ven los estudiantes arriba de todo
+  TAGLINE_PORTAL: "Ingresá a tu clase y accedé a todo el material de estudio.",
+  TITULO_PORTAL: "Clases de Inglés con Mauro"
+};
+/* ============================================================
+   FIN DE LA ZONA DE CONFIGURACIÓN — no hace falta tocar nada
+   debajo de esta línea.
+   ============================================================ */
+</script>
+
+<style>
+:root{
+  --sky: #BFE6F5;
+  --peach: #F7C28C;
+  --blue: #1B4F91;
+  --blue-soft: #4A6FA5;
+  --orange: #E8742C;
+  --orange-deep: #C85F1C;
+  --card: #FFFFFF;
+  --border: #D9E6EE;
+  --error: #D64545;
+  --success: #2F9E66;
+  --shadow: 0 10px 30px rgba(27,79,145,0.18);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:linear-gradient(135deg, var(--sky) 0%, var(--peach) 100%);
+  background-attachment:fixed;
+  color:var(--blue);
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+.label{
+  font-family:'Nunito',sans-serif;
+  font-weight:800;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  font-size:11px;
+  color:var(--blue-soft);
+}
+h1,h2,h3{font-family:'Baloo 2',sans-serif; margin:0;}
+button{font-family:'Nunito',sans-serif; cursor:pointer;}
+a{color:var(--blue);}
+
+/* ---------- LOGIN ---------- */
+#login-screen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.login-stage{
+  position:relative;
+  max-width:380px;
+  width:100%;
+}
+.deco-icon{
+  position:absolute;
+  display:none;
+}
+.deco-book{
+  left:-64px;
+  bottom:18px;
+  width:54px; height:54px;
+}
+.deco-bubble{
+  right:-50px;
+  top:-36px;
+  width:60px; height:60px;
+}
+@media (min-width:640px){
+  .deco-icon{display:block;}
+}
+.card-stamp{
+  position:relative;
+  background:var(--card);
+  border-radius:22px;
+  padding:40px 32px 32px;
+  width:100%;
+  box-shadow:var(--shadow);
+}
+.card-stamp .eyebrow{
+  font-family:'Nunito',sans-serif;
+  font-weight:800;
+  font-size:13px;
+  letter-spacing:.01em;
+  color:var(--orange);
+  margin-bottom:10px;
+  line-height:1.4;
+}
+.card-stamp h1{
+  font-size:30px;
+  font-weight:800;
+  color:var(--blue);
+  line-height:1.18;
+  margin-bottom:10px;
+}
+.card-stamp p.sub{
+  color:var(--blue-soft);
+  font-size:14.5px;
+  font-weight:600;
+  margin:0 0 26px;
+}
+.field{margin-bottom:16px;}
+.field label{display:block; margin-bottom:6px; font-weight:700; font-size:14px; color:var(--blue);}
+select, input[type=password], input[type=text], textarea{
+  width:100%;
+  font-family:'Nunito',sans-serif;
+  font-weight:600;
+  font-size:15px;
+  padding:11px 14px;
+  border:1.5px solid var(--border);
+  border-radius:10px;
+  background:#fff;
+  color:var(--blue);
+}
+select:focus, input:focus, textarea:focus{
+  outline:2px solid var(--orange);
+  outline-offset:1px;
+}
+.btn-primary{
+  width:100%;
+  background:var(--orange);
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  padding:14px;
+  font-size:15.5px;
+  font-weight:800;
+  margin-top:6px;
+  transition:background .15s ease;
+}
+.btn-primary:hover{background:var(--orange-deep);}
+.btn-primary:focus-visible{outline:2px solid var(--blue); outline-offset:2px;}
+.error-msg{
+  color:var(--error);
+  font-size:13px;
+  font-weight:700;
+  margin-top:10px;
+  min-height:16px;
+}
+.loading-msg{color:var(--blue-soft); font-size:13px; font-weight:600; margin-top:10px;}
+
+/* ---------- MAIN ---------- */
+#main-screen{display:none; min-height:100vh; flex-direction:column;}
+#main-screen.flex-active{display:flex;}
+header.topbar{
+  background:var(--blue);
+  color:#fff;
+  padding:18px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  flex:0 0 auto;
+}
+header.topbar .titlewrap .label{color:#BFD6F0;}
+header.topbar h2{font-size:20px; font-weight:800; color:#fff;}
+.logout-btn{
+  background:transparent;
+  border:1.5px solid rgba(255,255,255,0.45);
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+  padding:8px 16px;
+  border-radius:8px;
+}
+.logout-btn:hover{background:rgba(255,255,255,0.12);}
+
+.tabs-strip{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:18px 20px 14px;
+  background:linear-gradient(135deg, var(--sky) 0%, var(--peach) 100%);
+  flex:0 0 auto;
+}
+.tab-folder{
+  flex:0 0 auto;
+  background:rgba(255,255,255,0.6);
+  border:1.5px solid transparent;
+  padding:9px 16px;
+  border-radius:20px;
+  font-family:'Nunito',sans-serif;
+  font-weight:700;
+  font-size:13px;
+  color:var(--blue-soft);
+}
+.tab-folder.active{
+  background:#fff;
+  color:var(--orange-deep);
+  font-weight:800;
+  border-color:var(--orange);
+}
+.tab-folder:hover{color:var(--blue);}
+
+main.content{
+  background:#fff;
+  flex:1 1 auto;
+  padding:24px 20px 80px;
+}
+.material-list{
+  max-width:760px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.material-item{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  border:1.5px solid var(--border);
+  border-radius:12px;
+  padding:14px 16px;
+  text-decoration:none;
+  color:var(--blue);
+  background:#FAFCFE;
+  transition:border-color .15s ease, transform .1s ease;
+}
+.material-item:hover{border-color:var(--orange); transform:translateX(2px);}
+.material-icon{
+  flex:0 0 auto;
+  width:36px; height:36px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:50%;
+  background:#fff;
+  border:1.5px solid var(--border);
+}
+.material-icon svg{width:17px; height:17px;}
+.material-info{flex:1; min-width:0;}
+.material-name{font-weight:800; font-size:15px;}
+.material-type{
+  font-family:'Nunito',sans-serif;
+  font-weight:700;
+  font-size:11px;
+  color:var(--blue-soft);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  margin-top:2px;
+}
+.empty-state{
+  text-align:center;
+  color:var(--blue-soft);
+  font-weight:600;
+  padding:50px 20px;
+  font-size:14px;
+}
+
+/* ---------- CONTACT FAB + MODAL ---------- */
+.fab-contact{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  background:var(--orange);
+  color:#fff;
+  border:none;
+  border-radius:30px;
+  padding:14px 20px;
+  font-size:14px;
+  font-weight:800;
+  box-shadow:0 6px 18px rgba(232,116,44,0.4);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  z-index:50;
+}
+.fab-contact:hover{background:var(--orange-deep);}
+.modal-overlay{
+  display:none;
+  position:fixed; inset:0;
+  background:rgba(27,79,145,0.45);
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.modal-overlay.open{display:flex;}
+.modal-box{
+  background:#fff;
+  border-radius:18px;
+  max-width:420px;
+  width:100%;
+  padding:28px;
+  position:relative;
+  box-shadow:0 20px 50px rgba(27,79,145,0.3);
+}
+.modal-box h3{font-size:22px; font-weight:800; color:var(--blue); margin-bottom:4px;}
+.modal-box p.sub{color:var(--blue-soft); font-weight:600; font-size:13.5px; margin:0 0 20px;}
+.modal-close{
+  position:absolute; top:14px; right:14px;
+  background:none; border:none;
+  font-size:22px; color:var(--blue-soft); line-height:1;
+  padding:4px;
+}
+textarea{resize:vertical; min-height:90px;}
+.contact-status{font-size:13px; font-weight:700; margin-top:10px;}
+.contact-status.ok{color:var(--success);}
+.contact-status.err{color:var(--error);}
+
+@media (max-width:480px){
+  .card-stamp{padding:32px 22px 26px;}
+  header.topbar h2{font-size:17px;}
+}
+</style>
+
+<!-- ============ LOGIN ============ -->
+<div id="login-screen">
+  <div class="login-stage">
+    <svg class="deco-icon deco-book" viewBox="0 0 100 100" fill="none" stroke="#1B4F91" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M50 30 C 42 24, 26 24, 16 30 L 16 76 C 26 70, 42 70, 50 76 Z"/>
+      <path d="M50 30 C 58 24, 74 24, 84 30 L 84 76 C 74 70, 58 70, 50 76 Z"/>
+      <line x1="50" y1="32" x2="50" y2="74"/>
+    </svg>
+    <svg class="deco-icon deco-bubble" viewBox="0 0 100 100">
+      <path d="M50 12 C 25 12, 8 28, 8 48 C 8 64, 19 77, 35 82 L 30 95 L 52 83 C 72 81, 92 65, 92 48 C 92 28, 75 12, 50 12 Z" fill="#1B4F91"/>
+      <circle cx="32" cy="48" r="5" fill="#F7C28C"/>
+      <circle cx="50" cy="48" r="5" fill="#F7C28C"/>
+      <circle cx="68" cy="48" r="5" fill="#F7C28C"/>
+    </svg>
+    <div class="card-stamp">
+      <div class="eyebrow" id="portal-tagline">Ingresá a tu clase y accedé a todo el material de estudio.</div>
+      <h1 id="portal-title">Clases de Inglés</h1>
+      <p class="sub">Elegí tu curso e ingresá la contraseña que te dio el profesor.</p>
+
+      <div class="field">
+        <label for="curso-select">Curso</label>
+        <select id="curso-select"><option value="">Cargando cursos…</option></select>
+      </div>
+      <div class="field">
+        <label for="pass-input">Contraseña</label>
+        <input type="password" id="pass-input" placeholder="••••••••">
+      </div>
+      <button class="btn-primary" id="login-btn">Ingresar</button>
+      <div class="error-msg" id="login-error"></div>
+      <div class="loading-msg" id="login-loading">Cargando material…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MAIN ============ -->
+<div id="main-screen">
+  <header class="topbar">
+    <div class="titlewrap">
+      <div class="label">Curso</div>
+      <h2 id="curso-actual">—</h2>
+    </div>
+    <button class="logout-btn" id="logout-btn">Salir</button>
+  </header>
+
+  <nav class="tabs-strip" id="tabs-strip"></nav>
+
+  <main class="content">
+    <div class="material-list" id="material-list"></div>
+  </main>
+
+  <button class="fab-contact" id="open-contact-btn">✉ Contactá al profesor</button>
+</div>
+
+<!-- ============ CONTACT MODAL ============ -->
+<div class="modal-overlay" id="contact-overlay">
+  <div class="modal-box">
+    <button class="modal-close" id="close-contact-btn">&times;</button>
+    <h3>Escribile al profesor</h3>
+    <p class="sub">Tu mensaje llega directo por mail. No necesitás WhatsApp.</p>
+    <div class="field">
+      <label for="contact-name">Tu nombre</label>
+      <input type="text" id="contact-name" placeholder="Nombre y apellido">
+    </div>
+    <div class="field">
+      <label for="contact-email">Tu email (para que te pueda responder)</label>
+      <input type="text" id="contact-email" placeholder="tunombre@gmail.com">
+    </div>
+    <div class="field">
+      <label for="contact-msg">Mensaje</label>
+      <textarea id="contact-msg" placeholder="Escribí tu consulta acá..."></textarea>
+    </div>
+    <button class="btn-primary" id="send-contact-btn">Enviar mensaje</button>
+    <div class="contact-status" id="contact-status"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- Iconos por tipo de material ---------- */
+const ICONS = {
+  pdf: '<svg viewBox="0 0 24 24" fill="none" stroke="#D64545" stroke-width="2"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6" stroke="#D64545"/></svg>',
+  imagen: '<svg viewBox="0 0 24 24" fill="none" stroke="#2F9E66" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
+  video: '<svg viewBox="0 0 24 24" fill="none" stroke="#E8742C" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M10 9l5 3-5 3z" fill="#E8742C" stroke="none"/></svg>',
+  link: '<svg viewBox="0 0 24 24" fill="none" stroke="#4A6FA5" stroke-width="2"><path d="M9 17H7a5 5 0 010-10h2"/><path d="M15 7h2a5 5 0 010 10h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>'
+};
+function iconFor(tipo){
+  const t = (tipo||'').toLowerCase().trim();
+  if(t.includes('pdf')) return ICONS.pdf;
+  if(t.includes('imagen') || t.includes('foto')) return ICONS.imagen;
+  if(t.includes('video') || t.includes('youtube')) return ICONS.video;
+  return ICONS.link;
+}
+
+let ALL_ROWS = [];
+let CURRENT_CURSO = null;
+let CURRENT_ROWS = [];
+let CURRENT_FOLDER = null;
+
+document.getElementById('portal-title').textContent = CONFIG.TITULO_PORTAL;
+document.getElementById('portal-tagline').textContent = CONFIG.TAGLINE_PORTAL;
+
+/* ---------- Cargar la planilla (CSV) ---------- */
+function cargarPlanilla(){
+  Papa.parse(CONFIG.SHEET_CSV_URL, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results){
+      ALL_ROWS = results.data.map(r => ({
+        curso: (r['Curso']||'').trim(),
+        carpeta: (r['CarpetaTema']||'Sin carpeta').trim(),
+        nombre: (r['NombreMaterial']||'Material').trim(),
+        tipo: (r['Tipo']||'Link').trim(),
+        url: (r['URL']||'').trim(),
+        password: (r['Password']||'').trim()
+      })).filter(r => r.curso && r.url);
+
+      const cursos = [...new Set(ALL_ROWS.map(r=>r.curso))].sort();
+      const sel = document.getElementById('curso-select');
+      sel.innerHTML = '<option value="">Elegí tu curso…</option>' +
+        cursos.map(c=>`<option value="${c.replace(/"/g,'&quot;')}">${c}</option>`).join('');
+      document.getElementById('login-loading').style.display='none';
+    },
+    error: function(){
+      document.getElementById('login-loading').style.display='none';
+      document.getElementById('login-error').textContent =
+        'No se pudo cargar el material. Avisale al profesor.';
+    }
+  });
+}
+cargarPlanilla();
+
+/* ---------- Login ---------- */
+document.getElementById('login-btn').addEventListener('click', intentarLogin);
+document.getElementById('pass-input').addEventListener('keydown', e=>{
+  if(e.key==='Enter') intentarLogin();
+});
+
+function intentarLogin(){
+  const curso = document.getElementById('curso-select').value;
+  const pass = document.getElementById('pass-input').value.trim();
+  const errBox = document.getElementById('login-error');
+  errBox.textContent = '';
+
+  if(!curso){ errBox.textContent='Elegí un curso.'; return; }
+  if(!pass){ errBox.textContent='Ingresá la contraseña.'; return; }
+
+  const rowsCurso = ALL_ROWS.filter(r=>r.curso===curso);
+  const passOk = rowsCurso.some(r => r.password.toLowerCase() === pass.toLowerCase());
+
+  if(!passOk){
+    errBox.textContent = 'Contraseña incorrecta para ese curso.';
+    return;
+  }
+
+  CURRENT_CURSO = curso;
+  CURRENT_ROWS = rowsCurso;
+  sessionStorage.setItem('cens_curso', curso);
+  sessionStorage.setItem('cens_pass', pass);
+  mostrarMain();
+}
+
+function mostrarMain(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('main-screen').classList.add('flex-active');
+  document.getElementById('curso-actual').textContent = CURRENT_CURSO;
+
+  const carpetas = [...new Set(CURRENT_ROWS.map(r=>r.carpeta))];
+  CURRENT_FOLDER = carpetas[0] || null;
+  renderTabs(carpetas);
+  renderMateriales();
+}
+
+function renderTabs(carpetas){
+  const strip = document.getElementById('tabs-strip');
+  strip.innerHTML = carpetas.map(c =>
+    `<button class="tab-folder ${c===CURRENT_FOLDER?'active':''}" data-folder="${c.replace(/"/g,'&quot;')}">${c}</button>`
+  ).join('');
+  strip.querySelectorAll('.tab-folder').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      CURRENT_FOLDER = btn.dataset.folder;
+      strip.querySelectorAll('.tab-folder').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      renderMateriales();
+    });
+  });
+}
+
+function renderMateriales(){
+  const list = document.getElementById('material-list');
+  const items = CURRENT_ROWS.filter(r=>r.carpeta===CURRENT_FOLDER);
+  if(items.length===0){
+    list.innerHTML = '<div class="empty-state">Todavía no hay material acá.</div>';
+    return;
+  }
+  list.innerHTML = items.map(it=>`
+    <a class="material-item" href="${it.url}" target="_blank" rel="noopener">
+      <span class="material-icon">${iconFor(it.tipo)}</span>
+      <span class="material-info">
+        <div class="material-name">${it.nombre}</div>
+        <div class="material-type">${it.tipo}</div>
+      </span>
+    </a>
+  `).join('');
+}
+
+/* ---------- Logout ---------- */
+document.getElementById('logout-btn').addEventListener('click', ()=>{
+  sessionStorage.removeItem('cens_curso');
+  sessionStorage.removeItem('cens_pass');
+  CURRENT_CURSO = null; CURRENT_ROWS = [];
+  document.getElementById('main-screen').classList.remove('flex-active');
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('pass-input').value='';
+});
+
+/* ---------- Recordar sesión dentro de la pestaña ---------- */
+window.addEventListener('load', ()=>{
+  const savedCurso = sessionStorage.getItem('cens_curso');
+  const savedPass = sessionStorage.getItem('cens_pass');
+  if(savedCurso && savedPass){
+    const tryRestore = setInterval(()=>{
+      if(ALL_ROWS.length>0){
+        clearInterval(tryRestore);
+        const rowsCurso = ALL_ROWS.filter(r=>r.curso===savedCurso);
+        const ok = rowsCurso.some(r=>r.password.toLowerCase()===savedPass.toLowerCase());
+        if(ok){
+          CURRENT_CURSO = savedCurso;
+          CURRENT_ROWS = rowsCurso;
+          document.getElementById('curso-select').value = savedCurso;
+          mostrarMain();
+        }
+      }
+    },150);
+  }
+});
+
+/* ---------- Contacto (EmailJS) ---------- */
+if(CONFIG.EMAILJS_PUBLIC_KEY && !CONFIG.EMAILJS_PUBLIC_KEY.startsWith('PEGAR_')){
+  emailjs.init({publicKey: CONFIG.EMAILJS_PUBLIC_KEY});
+}
+const overlay = document.getElementById('contact-overlay');
+document.getElementById('open-contact-btn').addEventListener('click', ()=>{
+  overlay.classList.add('open');
+  document.getElementById('contact-status').textContent='';
+});
+document.getElementById('close-contact-btn').addEventListener('click', ()=> overlay.classList.remove('open'));
+overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.classList.remove('open'); });
+
+document.getElementById('send-contact-btn').addEventListener('click', ()=>{
+  const nombre = document.getElementById('contact-name').value.trim();
+  const emailEstudiante = document.getElementById('contact-email').value.trim();
+  const mensaje = document.getElementById('contact-msg').value.trim();
+  const status = document.getElementById('contact-status');
+
+  if(!mensaje){ status.className='contact-status err'; status.textContent='Escribí un mensaje.'; return; }
+
+  status.className='contact-status'; status.textContent='Enviando…';
+
+  emailjs.send(CONFIG.EMAILJS_SERVICE_ID, CONFIG.EMAILJS_TEMPLATE_ID, {
+    from_name: nombre || 'Estudiante sin nombre',
+    curso: CURRENT_CURSO || 'No identificado',
+    message: mensaje,
+    reply_to: emailEstudiante || 'sin-email@no-respondido.com'
+  }).then(()=>{
+    status.className='contact-status ok';
+    status.textContent='¡Mensaje enviado! El profesor te va a responder por mail.';
+    document.getElementById('contact-msg').value='';
+    document.getElementById('contact-email').value='';
+    document.getElementById('contact-name').value='';
+  }).catch(()=>{
+    status.className='contact-status err';
+    status.textContent='No se pudo enviar. Probá de nuevo en un momento.';
+  });
+});
+</script>
+</body>
+</html>
